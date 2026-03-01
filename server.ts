@@ -240,17 +240,7 @@ async function startServer() {
     });
   }
 
-  const PORT = parseInt(process.env.PORT || "3001", 10);
-  httpServer.on("error", (err: NodeJS.ErrnoException) => {
-    if (err.code === "EADDRINUSE") {
-      console.log(`Port ${PORT} is in use, trying ${PORT + 1}...`);
-      httpServer.listen(PORT + 1, "0.0.0.0", () => {
-        console.log(`Server running on http://localhost:${PORT + 1}`);
-      });
-    } else {
-      throw err;
-    }
-  });
+  const PORT = parseInt(process.env.PORT || "3000", 10);
   httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
