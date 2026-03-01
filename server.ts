@@ -11,6 +11,12 @@ const __dirname = path.dirname(__filename);
 
 const db = new Database("hr.db");
 
+// Drop ideas table if it has an outdated CHECK constraint (missing 'project_feedback')
+const ideasTableInfo = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='ideas'").get() as { sql: string } | undefined;
+if (ideasTableInfo && !ideasTableInfo.sql.includes("project_feedback")) {
+  db.exec("DROP TABLE ideas");
+}
+
 // Initialize DB
 db.exec(`
   CREATE TABLE IF NOT EXISTS employees (
@@ -96,6 +102,15 @@ if (employeeCount.count === 0) {
   const insertNotification = db.prepare("INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)");
   insertNotification.run(1, "New Idea Posted", "Jordan Smith posted a new idea in the Idea Box.", "idea");
   insertNotification.run(1, "Kudos Received", "Maya Patel gave you kudos!", "kudos");
+}
+
+// Re-seed ideas if the table was recreated due to schema migration
+const ideasCount = db.prepare("SELECT COUNT(*) as count FROM ideas").get() as { count: number };
+if (ideasCount.count === 0) {
+  const insertIdea = db.prepare("INSERT INTO ideas (title, content, type, is_anonymous, author_id) VALUES (?, ?, ?, ?, ?)");
+  insertIdea.run("Hiking Trip", "Let's go for a team hike next month to the nearby trails.", "team_building", 0, 3);
+  insertIdea.run("Coffee Machine Upgrade", "The current coffee machine is quite old, maybe we can get a new one?", "general", 1, 4);
+  insertIdea.run("Project X Launch", "I feel Project X is a bit too advanced for the current public market. We should refine the UX first.", "project_feedback", 0, 2);
 }
 
 async function startServer() {
