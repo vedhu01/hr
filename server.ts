@@ -56,7 +56,7 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
-    type TEXT CHECK(type IN ('team_building', 'general')) NOT NULL,
+    type TEXT CHECK(type IN ('team_building', 'general', 'project_feedback')) NOT NULL,
     is_anonymous INTEGER DEFAULT 0,
     author_id INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
